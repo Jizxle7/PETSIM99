@@ -180,7 +180,7 @@ Booths_Broadcast.OnClientEvent:Connect(function(username, message)
                 local unitGems = gems/amount
 		snipeNormal = false
 				
-                if string.find(item, "Huge") and unitGems <= 5000000 then
+                if string.find(item, "Huge") and unitGems <= 1000000 then
                     coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
                     return
 		elseif string.find(item, "Charm") and unitGems <= 30000 then
@@ -198,11 +198,11 @@ Booths_Broadcast.OnClientEvent:Connect(function(username, message)
                     elseif type.titanic and unitGems <= 50000000 then
 			coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
                         return
-                    elseif type.huge and unitGems <= 5000000 then
+                    elseif type.huge and unitGems <= 1000000 then
 			coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
                         return
 		    end
-                elseif (item == "Titanic Christmas Present" or string.find(item, "2024 New Year")) and unitGems <= 30000 then
+                elseif (item == "X-large Christmas Present" or string.find(item, "2024 New Year")) and unitGems <= 30000 then
                     coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
                     return
 		elseif class == "Charm" and unitGems <= 10000 then
