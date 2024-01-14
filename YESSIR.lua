@@ -4,7 +4,8 @@ ethereum: creating the base sniper
 chocolog: providing type.huge
 Edmond: offered tips for optimization
 
-it is very recommended to fork this and made your own config
+Hello from root, I won't be updating this as I have been very demotivated to update this script
+it's required to fork this for now. cya
 ]]--
 
 local osclock = os.clock()
@@ -12,7 +13,7 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
-task.wait(10)
+task.wait(5)
 game.Players.LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 local Booths_Broadcast = game:GetService("ReplicatedStorage").Network:WaitForChild("Booths_Broadcast")
@@ -22,7 +23,7 @@ local PlayerInServer = #getPlayers
 local http = game:GetService("HttpService")
 local ts = game:GetService("TeleportService")
 local rs = game:GetService("ReplicatedStorage")
-local snipeNormal
+local snipeNormal, signal
 local Library = require(rs:WaitForChild("Library"))
 
 if snipeNormalPets == nil then
@@ -42,7 +43,7 @@ local function processListingInfo(uid, gems, item, version, shiny, amount, bough
     local weburl, webContent, webcolor, webStatus
     local versionVal = { [1] = "Golden ", [2] = "Rainbow " }
     local versionStr = versionVal[version] or (version == nil and "")
-    local mention = (Library.Directory.Pets[item].huge or Library.Directory.Pets[item].titanic) and "<@" .. userid .. ">" or ""
+    local mention = ( class == "Pet" and (Library.Directory.Pets[item].huge or Library.Directory.Pets[item].titanic)) and "<@" .. userid .. ">" or ""
 	
     if boughtStatus then
 	webcolor = tonumber(0x00ff00)
@@ -138,10 +139,14 @@ local function processListingInfo(uid, gems, item, version, shiny, amount, bough
 end
 
 local function tryPurchase(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
-    if buytimestamp > listTimestamp then
-	task.wait(buytimestamp - workspace:GetServerTimeNow() - Players.LocalPlayer:GetNetworkPing())
-    end
-    local boughtPet, boughtMessage = game:GetService("ReplicatedStorage").Network.Booths_RequestPurchase:InvokeServer(playerid, uid)
+    signal = game:GetService("RunService").Heartbeat:Connect(function()
+	if buytimestamp < workspace:GetServerTimeNow() then
+	    signal:Disconnect()
+	    signal = nil
+        end
+    end)
+    repeat task.wait() until signal == nil
+    local boughtPet, boughtMessage = rs.Network.Booths_RequestPurchase:InvokeServer(playerid, uid)
     processListingInfo(uid, gems, item, version, shiny, amount, username, boughtPet, class, boughtMessage, snipeNormal)
 end
 
@@ -282,7 +287,7 @@ end
 Players.PlayerRemoving:Connect(function(player)
     getPlayers = Players:GetPlayers()
     PlayerInServer = #getPlayers
-    if PlayerInServer < 30 then
+    if PlayerInServer < 20 then
         while task.wait(10) do
 	    jumpToServer()
 	end
