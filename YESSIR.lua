@@ -139,15 +139,36 @@ local function processListingInfo(uid, gems, item, version, shiny, amount, bough
 end
 
 local function tryPurchase(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp, snipeNormal)
+    local success, errorInfo
+
+    local function disconnectSignal()
+        if signal then
+            signal:Disconnect()
+            signal = nil
+        end
+    end
+
     signal = game:GetService("RunService").Heartbeat:Connect(function()
-	if buytimestamp < workspace:GetServerTimeNow() then
-	    signal:Disconnect()
-	    signal = nil
+        if buytimestamp < workspace:GetServerTimeNow() then
+            disconnectSignal()
         end
     end)
-    repeat task.wait() until signal == nil
-    local boughtPet, boughtMessage = rs.Network.Booths_RequestPurchase:InvokeServer(playerid, uid)
-    processListingInfo(uid, gems, item, version, shiny, amount, username, boughtPet, class, boughtMessage, snipeNormal)
+
+    success, errorInfo = pcall(function()
+        repeat
+            task.wait()
+        until not signal
+
+        local boughtPet, boughtMessage = rs.Network.Booths_RequestPurchase:InvokeServer(playerid, uid)
+        processListingInfo(uid, gems, item, version, shiny, amount, username, boughtPet, class, boughtMessage, snipeNormal)
+    end)
+
+    disconnectSignal()
+
+    if not success then
+        warn("Purchase failed:", errorInfo)
+        -- Handle the error appropriately, e.g., retry logic or notifying the user
+    end
 end
 
 Booths_Broadcast.OnClientEvent:Connect(function(username, message)
